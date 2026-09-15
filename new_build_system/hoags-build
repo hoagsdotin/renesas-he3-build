@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# hoags-build -- single entry point for the Renesas/HE3 build system.
+#
+#   hoags-build doctor                   check this machine, show all paths
+#   hoags-build firmware [PROJECT...]    pull + compile + convert
+#   hoags-build release  [PROJECT...]    the above, then stage into HE3
+#   hoags-build he3      [PROJECT...]    release + push + build HE3
+#   hoags-build list                     show resolved config
+#
+# PROJECT is eterna and/or lotier; omit for both.
+#
+# Everything resolves relative to HOAGS_WORKSPACE (default $HOME). Nothing is
+# hardcoded to a particular machine or user. See config.ini.example.
+#
+#   export HOAGS_WORKSPACE=/srv/builds
+#   ./hoags-build doctor
+
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+PY="${PYTHON:-python3}"
+
+if ! command -v "$PY" >/dev/null 2>&1; then
+	echo "error: $PY not found. Install python3 or set PYTHON=..." >&2
+	exit 1
+fi
+
+usage() {
+	# the header comment block, stopping at the first non-comment line
+	sed -n '2,${/^#/!q; s/^#\{1\} \{0,1\}//; p}' "${BASH_SOURCE[0]}"
+}
+
+cmd="${1:-}"
+[ $# -gt 0 ] && shift || true
+
+case "$cmd" in
+doctor)
+	exec "$PY" "$HERE/doctor.py" "$@"
+	;;
+list)
+	exec "$PY" "$HERE/build_firmware.py" --list "$@"
+	;;
+firmware)
+	# pull + compile + convert
+	exec "$PY" "$HERE/pull_repos.py" "$@"
+	;;
+release)
+	# firmware, then stage the artifact into a local HE3 checkout (no push)
+	exec "$PY" "$HERE/he3_release.py" "$@"
+	;;
+he3)
+	# firmware, stage, push, then build HE3
+	exec "$PY" "$HERE/he3_release.py" --push --build "$@"
+	;;
+""|-h|--help|help)
+	usage
+	exit 0
+	;;
+*)
+	echo "error: unknown command '$cmd'" >&2
+	echo >&2
+	usage >&2
+	exit 2
+	;;
+esac

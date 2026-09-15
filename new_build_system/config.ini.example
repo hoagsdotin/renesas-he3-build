@@ -1,0 +1,65 @@
+# Copy to config.ini next to the scripts, or to
+# ~/.config/hoags-build/config.ini, and edit. Everything is optional: leave a
+# value blank or delete the line to use the default.
+#
+# Every setting also has an environment variable, which wins over this file.
+# Run `./hoags-build doctor` to see what actually resolved.
+
+[paths]
+# The one setting worth changing. Base directory holding the project
+# checkouts. Default: $HOME        env: HOAGS_WORKSPACE
+workspace =
+
+# Default: <workspace>/build-secrets.env             env: HOAGS_SECRETS
+secrets =
+
+# HE3 clones used to stage and push artifacts.
+# Default: <workspace>/he3-release                   env: HOAGS_HE3_WORKROOT
+he3_workroot =
+
+# HE3 build checkout. reset --hard + clean -fd on every run, so never point
+# this at a tree anyone edits by hand.
+# Default: <workspace>/he3-build                     env: HOAGS_HE3_CHECKOUT
+he3_checkout =
+
+# The isolated HE3 build scripts.
+# Default: <parent of this dir>/new_build_script     env: HOAGS_HE3_SCRIPTS
+he3_scripts =
+
+# Only used by --ci, which runs the shared build.sh (S3 + OTA manifest).
+# Default: <workspace>/build-scripts                 env: HOAGS_LEGACY_SCRIPTS
+legacy_scripts =
+
+# Default: <workspace>/http-server/local/he3         env: HOAGS_OUTPUT
+output =
+
+# Default: <workspace>/build-logs                    env: HOAGS_LOG_DIR
+logs =
+
+[tools]
+# Directory containing ccrl/rlink. Blank = look on PATH, then search the
+# usual install locations for any version.        env: HOAGS_CCRL_BIN
+ccrl_bin =
+
+# RL78 device file (DR5F121BC.DVF). Blank = search the workspace, system
+# install locations and any e2 studio device pack.
+# Required for the RL78 build: without it rlink cannot resolve the RAM
+# mirror region and the link fails.               env: HOAGS_DEVICE_FILE
+device_file =
+
+# Extra directories to prepend to PATH, colon separated.
+#                                                 env: HOAGS_TOOL_PATHS
+extra_paths =
+
+[he3]
+# Repository the HE3 artifacts are pushed to and built from.
+# Defaults: hoagstech / HE3        env: HOAGS_HE3_OWNER, HOAGS_HE3_REPO
+owner =
+repo =
+
+[projects]
+# Git checkout per firmware project. Defaults to
+# <workspace>/<name>_automation/External
+#                          env: HOAGS_ETERNA_REPO, HOAGS_LOTIER_REPO
+eterna =
+lotier =
